@@ -1,7 +1,10 @@
 package main
 
 import (
+	"context"
 	"math"
+	"os"
+	"os/signal"
 	"time"
 
 	"github.com/go-vgo/robotgo"
@@ -9,19 +12,45 @@ import (
 )
 
 func main() {
-	midScreenMatrix := createMidScreenMatrix()
-	originalX, originalY := robotgo.GetMousePos()
-	robotgo.MoveMouseSmooth(int(midScreenMatrix.At(0, 0)), int(midScreenMatrix.At(0, 1)))
-	point := mat.NewDense(1, 2, []float64{150, 150})
-	theta := 0.0
-	for {
-		rotationMatrix := createRotationMatrix(theta)
-		mouseMatrix := determineMouseMatrix(point, rotationMatrix, midScreenMatrix)
-		robotgo.MoveMouse(int(mouseMatrix.At(0, 0)), int(mouseMatrix.At(0, 1)))
+	c1, cancel := context.WithCancel(context.Background())
+	exitCh := make(chan struct{})
 
-		theta += 0.07
-		time.Sleep(3 * time.Millisecond)
-	}
+	originalX, originalY := robotgo.GetMousePos()
+
+	go func(ctx context.Context) {
+		midScreenMatrix := createMidScreenMatrix()
+		robotgo.MoveMouseSmooth(int(midScreenMatrix.At(0, 0)), int(midScreenMatrix.At(0, 1)))
+		point := mat.NewDense(1, 2, []float64{75, 75})
+		theta := 0.0
+		for {
+			// Mouse stuff
+			rotationMatrix := createRotationMatrix(theta)
+			mouseMatrix := determineMouseMatrix(point, rotationMatrix, midScreenMatrix)
+			robotgo.MoveMouse(int(mouseMatrix.At(0, 0)), int(mouseMatrix.At(0, 1)))
+			theta += 0.07
+			time.Sleep(3 * time.Millisecond)
+			// Loop exit logic
+			select {
+			case <-ctx.Done():
+				time.Sleep(500 * time.Millisecond)
+				exitCh <- struct{}{}
+				return
+			default:
+			}
+		}
+	}(c1)
+
+	signalCh := make(chan os.Signal, 1)
+	signal.Notify(signalCh, os.Interrupt)
+	go func() {
+		select {
+		case <-signalCh:
+			cancel()
+			return
+		}
+	}()
+	<-exitCh
+
 	robotgo.MoveMouse(originalX, originalY)
 }
 
