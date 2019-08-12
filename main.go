@@ -2,6 +2,7 @@ package main
 
 import (
 	"math"
+	"time"
 
 	"github.com/go-vgo/robotgo"
 	"gonum.org/v1/gonum/mat"
@@ -11,7 +12,24 @@ func main() {
 	midScreenMatrix := createMidScreenMatrix()
 	originalX, originalY := robotgo.GetMousePos()
 	robotgo.MoveMouseSmooth(int(midScreenMatrix.At(0, 0)), int(midScreenMatrix.At(0, 1)))
+	point := mat.NewDense(1, 2, []float64{150, 150})
+	theta := 0.0
+	for {
+		rotationMatrix := createRotationMatrix(theta)
+		mouseMatrix := determineMouseMatrix(point, rotationMatrix, midScreenMatrix)
+		robotgo.MoveMouse(int(mouseMatrix.At(0, 0)), int(mouseMatrix.At(0, 1)))
+
+		theta += 0.07
+		time.Sleep(3 * time.Millisecond)
+	}
 	robotgo.MoveMouse(originalX, originalY)
+}
+
+func determineMouseMatrix(point, rotationMatrix, offset mat.Matrix) mat.Matrix {
+	result := mat.NewDense(1, 2, nil)
+	result.Mul(point, rotationMatrix)
+	result.Add(result, offset)
+	return result
 }
 
 func createMidScreenMatrix() mat.Matrix {
