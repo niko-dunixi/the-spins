@@ -20,11 +20,10 @@ func main() {
 	go func(ctx context.Context) {
 		midScreenMatrix := createMidScreenMatrix()
 		robotgo.MoveMouseSmooth(int(midScreenMatrix.At(0, 0)), int(midScreenMatrix.At(0, 1)))
-		point := mat.NewDense(1, 2, []float64{75, 75})
 		theta := 0.0
 		for {
 			// Mouse stuff
-			mouseMatrix := determineMouseMatrix(point, midScreenMatrix, theta)
+			mouseMatrix := determineMouseMatrix(midScreenMatrix, theta)
 			robotgo.MoveMouse(int(mouseMatrix.At(0, 0)), int(mouseMatrix.At(0, 1)))
 			theta += 0.07
 			time.Sleep(3 * time.Millisecond)
@@ -53,10 +52,12 @@ func main() {
 	robotgo.MoveMouse(originalX, originalY)
 }
 
-func determineMouseMatrix(point, offset mat.Matrix, theta float64) mat.Matrix {
-	result := mat.NewDense(1, 2, nil)
-	rotationMatrix := createRotationMatrix(theta)
-	result.Mul(point, rotationMatrix)
+func determineMouseMatrix(offset mat.Matrix, theta float64) mat.Matrix {
+	point := mat.NewDense(1, 3, []float64{75, 75, 75})
+
+	result := mat.NewDense(1, 3, nil)
+	xAxisRotationMatrix := createXAxisRotationMatrix(theta)
+	result.Mul(point, xAxisRotationMatrix)
 	result.Add(result, offset)
 	return result
 }
@@ -74,9 +75,15 @@ func createScreenSizeMatrix() mat.Matrix {
 	return mat.NewDense(1, 2, values)
 }
 
-func createRotationMatrix(theta float64) mat.Matrix {
+func createXAxisRotationMatrix(theta float64) mat.Matrix {
 	// Row major order of the rotation matrix
 	// https://en.wikipedia.org/wiki/Rotation_matrix
-	values := []float64{math.Cos(theta), math.Sin(theta), -math.Sin(theta), math.Cos(theta)}
-	return mat.NewDense(2, 2, values)
+	// https://en.wikipedia.org/wiki/Rotation_matrix#In_three_dimensions
+	// https://math.stackexchange.com/questions/2305792/3d-projection-on-a-2d-plane-weak-maths-ressources
+	values := []float64{
+		1, 0, 0, // column 1
+		0, math.Cos(theta), math.Sin(theta), // column 2
+		0, -math.Sin(theta), math.Cos(theta), // column 3
+	}
+	return mat.NewDense(3, 3, values)
 }
