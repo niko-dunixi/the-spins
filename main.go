@@ -24,8 +24,7 @@ func main() {
 		theta := 0.0
 		for {
 			// Mouse stuff
-			rotationMatrix := createRotationMatrix(theta)
-			mouseMatrix := determineMouseMatrix(point, rotationMatrix, midScreenMatrix)
+			mouseMatrix := determineMouseMatrix(point, midScreenMatrix, theta)
 			robotgo.MoveMouse(int(mouseMatrix.At(0, 0)), int(mouseMatrix.At(0, 1)))
 			theta += 0.07
 			time.Sleep(3 * time.Millisecond)
@@ -54,8 +53,9 @@ func main() {
 	robotgo.MoveMouse(originalX, originalY)
 }
 
-func determineMouseMatrix(point, rotationMatrix, offset mat.Matrix) mat.Matrix {
+func determineMouseMatrix(point, offset mat.Matrix, theta float64) mat.Matrix {
 	result := mat.NewDense(1, 2, nil)
+	rotationMatrix := createRotationMatrix(theta)
 	result.Mul(point, rotationMatrix)
 	result.Add(result, offset)
 	return result
