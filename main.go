@@ -80,10 +80,27 @@ func createXAxisRotationMatrix(theta float64) mat.Matrix {
 	// https://en.wikipedia.org/wiki/Rotation_matrix
 	// https://en.wikipedia.org/wiki/Rotation_matrix#In_three_dimensions
 	// https://math.stackexchange.com/questions/2305792/3d-projection-on-a-2d-plane-weak-maths-ressources
+	// Normalize: https://youtu.be/ih20l3pJoeU?list=PLh9hqdYTkzv2ONWRPiMehvG46VWsRBb1O&t=1412
+	// https://youtu.be/ih20l3pJoeU?list=PLh9hqdYTkzv2ONWRPiMehvG46VWsRBb1O&t=1679
+	rad := asRadians(theta)
 	values := []float64{
 		1, 0, 0, // column 1
-		0, math.Cos(theta), math.Sin(theta), // column 2
-		0, -math.Sin(theta), math.Cos(theta), // column 3
+		0, math.Cos(rad), math.Sin(rad), // column 2
+		0, -math.Sin(rad), math.Cos(rad), // column 3
 	}
 	return mat.NewDense(3, 3, values)
+}
+
+func createProjectionMatrix(width int, height int, fov float64, zNear float64, zFar float64) mat.Matrix {
+	aspectRatio := float64(height) / float64(width)
+	return mat.NewDense(4, 4, []float64{
+		aspectRatio * math.Tan(asRadians(fov/2)), 0, 0, 0,
+		0, 1 / math.Tan(asRadians(fov/2)), 0, 0,
+		0, 0, zFar / (zFar - zNear), -(zFar*zNear)/zFar - zNear,
+		0, 0, 1, 0,
+	})
+}
+
+func asRadians(theta float64) (radians float64) {
+	return theta / 180.0 * math.Pi
 }
