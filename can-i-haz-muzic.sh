@@ -9,9 +9,12 @@ elif ! type ffmpeg > /dev/null; then
   exit 127
 fi
 
+asset_directory="./data/assets/"
 song_url="https://www.youtube.com/watch?v=z8cgNLGnnK4"
 song_file="nsp-you-spin-me-cover.mp3"
-loop_file="spin-loop.mp3"
+loop_file="${asset_directory}/spin-loop.mp3"
+
+mkdir -p "${asset_directory}"
 
 if [ ! -f "./${song_file}" ]; then
   youtube-dl "${song_url}" --extract-audio --audio-format mp3 --exec "mv {} ${song_file}"

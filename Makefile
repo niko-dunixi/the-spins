@@ -1,10 +1,12 @@
-.phony: install clean
+.phony: install copyright-infringement clean
 
-install: spin-loop.mp3
+install:
 	echo "Installer"
 
-spin-loop.mp3:
+copyright-infringement:
 	./can-i-haz-muzic.sh
+	go generate ./data
 
 clean:
 	rm -rfv ./bin
+	rm -rfv ./data/assets/*
