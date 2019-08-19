@@ -1,11 +1,11 @@
 .phony: install copyright-infringement clean
 
 install:
-	echo "Installer"
+	go install .
 
-copyright-infringement: data/assests/spin-loop.mp3
+generate: data/assets/spin-loop.mp3
 
-data/assests/spin-loop.mp3: .git/hooks/pre-commit
+data/assets/spin-loop.mp3: .git/hooks/pre-commit
 	./can-i-haz-muzic.sh
 	go generate ./data
 
