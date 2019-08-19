@@ -19,7 +19,7 @@ Note: For `make generate` to work you will need `youtube-dl` and `ffmpeg` instal
 
 ## What is it?
 I've been teaching myself how linear algebra works. Just as a proof of concept, I wanted to
-move a point about an axis on the screen. Frustraighted with all the incantations I had to
+move a point about an axis on the screen. Frustrated with all the incantations I had to
 cast to get a simple proof of concept to work in OpenGL, I decided to utilize... the mouse!
 
 The mouse can be considered a vector in space because any point X and Y can be interpreted
