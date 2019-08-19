@@ -1,4 +1,4 @@
-.phony: install copyright-infringement clean
+.phony: install generate clean
 
 install:
 	go install .
