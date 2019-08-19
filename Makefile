@@ -9,14 +9,14 @@ export loop_file = ${asset_directory}/spin-loop.mp3
 install:
 	go install .
 
-generate: ${loop_file}
-	go generate data
+generate: '${loop_file}'
+	go generate ./data
 
-${loop_file}: ${song_file}
+'${loop_file}': '${song_file}'
 	mkdir -p "${asset_directory}"
 	ffmpeg -i "${song_file}" -ss 00:01:13.30 -to 00:01:30.38 -c copy "${loop_file}"
 
-${song_file}: .git/hooks/pre-commit
+'${song_file}': .git/hooks/pre-commit
 	mkdir -p "${bin_directory}"
 	youtube-dl "${song_url}" --extract-audio --audio-format mp3 --exec "mv {} ${song_file}"
 
@@ -25,5 +25,5 @@ ${song_file}: .git/hooks/pre-commit
 	chmod +x .git/hooks/pre-commit
 
 clean:
-	rm -rfv ./bin
-	rm -rfv ./data/assets/*
+	git clean -Xdf
+	git clean -xdf
