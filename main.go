@@ -9,9 +9,13 @@ import (
 
 	"github.com/go-vgo/robotgo"
 	"gonum.org/v1/gonum/mat"
+
+	"github.com/paul-nelson-baker/the-spins/data"
 )
 
 func main() {
+	data.PlaySpinLoop()
+
 	c1, cancel := context.WithCancel(context.Background())
 	exitCh := make(chan struct{})
 
@@ -37,6 +41,10 @@ func main() {
 			default:
 			}
 		}
+	}(c1)
+
+	go func(ctx context.Context) {
+
 	}(c1)
 
 	signalCh := make(chan os.Signal, 1)
