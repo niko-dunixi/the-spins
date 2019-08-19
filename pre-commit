@@ -7,5 +7,6 @@ git diff --cached --name-status | while read state file; do
         if [[ "${file}" == "data/assets_vfsdata.go" ]]; then
             echo "Piracy is bad, mmmkay? Unstaging file: ${file}"
             git reset -- "${file}"
+            exit 1
         fi
 done
