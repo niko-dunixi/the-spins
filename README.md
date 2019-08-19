@@ -1,6 +1,22 @@
 # The Spins
 Now your computer can get them too!
 
+## Running
+In your terminal run `the-spins`, to exit simply hit `CTRL+C`
+
+## Lame Installation
+`go get github.com/paul-nelson-baker/the-spins`
+
+## True Installation
+Clone the repository locally and run the following:
+
+```
+make generate
+make install
+```
+
+Note: For `make generate` to work you will need `youtube-dl` and `ffmpeg` installed locally
+
 ## What is it?
 I've been teaching myself how linear algebra works. Just as a proof of concept, I wanted to
 move a point about an axis on the screen. Frustraighted with all the incantations I had to
@@ -18,20 +34,3 @@ vector `P_midScreen` which is a vector with X and Y values that are half the wid
 of the screen.
 
 *This occurs inifinitely until the user hits `CTRL+C` to exit*
-
-## Running
-In your terminal run `the-spins`, to exit simply hit `CTRL+C`
-
-## Lame Installation
-`go get github.com/paul-nelson-baker/the-spins`
-
-## True Installation
-Clone the repository locally and run the following:
-
-```
-make generate
-make install
-```
-
-
-
