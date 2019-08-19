@@ -6,11 +6,9 @@ Now your computer can get them too!
 ## Running
 In your terminal run `the-spins`, to exit simply hit `CTRL+C`
 
-## Lame Installation
-`go get github.com/paul-nelson-baker/the-spins`
-
-## True Installation
-Clone the repository locally and run the following:
+## Installation
+You _can_ just `go get github.com/paul-nelson-baker/the-spins`, but you won't really get the
+full effect. What you should do is clone the repository locally and run the following:
 
 ```
 make generate
