@@ -3,10 +3,7 @@ Now your computer can get them too!
 
 *_Allergy Warning: May contain easter-eggs_*
 
-## Running
-In your terminal run `the-spins`, to exit simply hit `CTRL+C`
-
-## Installation
+## Installation and Running
 You _can_ just `go get github.com/paul-nelson-baker/the-spins`, but you won't really get the
 full effect. What you should do is clone the repository locally and run the following:
 
@@ -16,6 +13,8 @@ make install
 ```
 
 Note: For `make generate` to work you will need `youtube-dl` and `ffmpeg` installed locally
+
+In your terminal run `the-spins`, to exit simply hit `CTRL+C`
 
 ## What is it?
 I've been teaching myself how linear algebra works. Just as a proof of concept, I wanted to
