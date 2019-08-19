@@ -25,5 +25,4 @@ generate: '${loop_file}'
 	chmod +x .git/hooks/pre-commit
 
 clean:
-	git clean -Xdf
 	git clean -xdf
