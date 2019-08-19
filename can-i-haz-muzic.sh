@@ -9,17 +9,19 @@ elif ! type ffmpeg > /dev/null; then
   exit 127
 fi
 
-asset_directory="./data/assets/"
+bin_directory="./bin"
+asset_directory="./data/assets"
 song_url="https://www.youtube.com/watch?v=z8cgNLGnnK4"
-song_file="nsp-you-spin-me-cover.mp3"
+song_file="${bin_directory}/nsp-you-spin-me-cover.mp3"
 loop_file="${asset_directory}/spin-loop.mp3"
 
+mkdir -p "${bin_directory}"
 mkdir -p "${asset_directory}"
 
-if [ ! -f "./${song_file}" ]; then
+if [ ! -f "${song_file}" ]; then
   youtube-dl "${song_url}" --extract-audio --audio-format mp3 --exec "mv {} ${song_file}"
 fi
-if [ ! -f "./${loop_file}" ]; then
-  ffmpeg -i "${song_file}" -ss 00:01:15.50 -to 00:01:23.00 -c copy "./${loop_file}"
+if [ ! -f "${loop_file}" ]; then
+  ffmpeg -i "${song_file}" -ss 00:01:13.30 -to 00:01:30.38 -c copy "${loop_file}"
 fi
 echo "I haz muzic: ${loop_file}"
