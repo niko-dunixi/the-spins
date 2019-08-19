@@ -12,7 +12,7 @@ make generate
 make install
 ```
 
-Note: For `make generate` to work you will need `youtube-dl` and `ffmpeg` installed locally
+Note: For `make generate` to work you will need [youtube-dl](https://ytdl-org.github.io/youtube-dl/download.html) and [ffmpeg](https://github.com/adaptlearning/adapt_authoring/wiki/Installing-FFmpeg) installed locally
 
 In your terminal run `the-spins`, to exit simply hit `CTRL+C`
 
