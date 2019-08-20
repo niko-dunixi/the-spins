@@ -32,7 +32,7 @@ func PlaySpinLoop(ctx context.Context) {
 			ended <- true
 		})))
 		<-ended
-		if err := streamer.Seek(110000); err != nil {
+		if err := streamer.Seek(0); err != nil {
 			log.Fatalf("an error occurred while attempting to loop audio: %s", err)
 		}
 		select {
