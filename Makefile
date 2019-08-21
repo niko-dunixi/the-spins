@@ -1,7 +1,8 @@
-.default: install
-.phony: install generate clean
+.DEFAULT: install
+.PHONY: install generate executable-all executable-osx executable-linux executable-windows integration-test clean
 
 export GO111MODULE=on
+bin_base_name:=the-spins
 bin_directory:=bin
 asset_directory:=data/assets
 song_url:=https://www.youtube.com/watch?v=9W6AN_eQeZo
@@ -10,6 +11,17 @@ loop_file:=$(asset_directory)/spin-loop.mp3
 
 install:
 	go install .
+
+executable-all: executable-osx executable-linux executable-windows
+
+executable-osx:
+	GOOS=darwin go build -o "${bin_directory}/${bin_base_name}.osx.run"
+
+executable-linux:
+	GOOS=linux go build -o "${bin_directory}/${bin_base_name}.linux.run"
+
+executable-windows:
+	GOOS=windows go build -o "${bin_directory}/${bin_base_name}.exe"
 
 .git/hooks/pre-commit:
 	cp ./pre-commit .git/hooks/pre-commit
@@ -33,6 +45,15 @@ $(loop_file): $(song_file)
 
 generate: $(loop_file)
 	go generate ./data
+
+integration-test:
+	mkdir -p "${bin_directory}"
+	mkdir -p "${asset_directory}"
+	[ -f ${song_file} ] || youtube-dl "https://www.youtube.com/watch?v=miZHa7ZC6Z0" --extract-audio --audio-format mp3 --exec "mv {} ${song_file}"
+	touch "${song_file}"
+	[ -f ${loop_file} ] || cp ${song_file} ${loop_file}
+	go generate ./data
+	go build -ldflags "-X github.com/paul-nelson-baker/the-spins/data.seekPointBuildOverride=0" -o "${bin_directory}/integration-test" . 
 
 clean:
 	git clean -xdf
