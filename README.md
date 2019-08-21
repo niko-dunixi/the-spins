@@ -13,7 +13,7 @@ You can install them yourself, or run the `install-dependencies.sh` script if yo
 
 ### The Project, Itself
 Like any other golang project you _can_ `go get github.com/paul-nelson-baker/the-spins`,
-but you won't really get the full effect. What you should do is clone the repository
+but you won't really get the "full effect". What you should do is clone the repository
 locally and run the following:
 
 ```
