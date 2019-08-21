@@ -4,6 +4,14 @@ Now your computer can get them too!
 *_Allergy Warning: May contain easter-eggs_*
 
 ## Installation and Running
+
+# Dependencies
+* GoLang
+* youtube-dl (optional)
+* ffmpeg (optional)
+You can install them al yourself, or run the `install-dependencies.sh` script if you're on Mac or Linux
+
+# The Project, Itself
 You _can_ just `go get github.com/paul-nelson-baker/the-spins`, but you won't really get the
 full effect. What you should do is clone the repository locally and run the following:
 
