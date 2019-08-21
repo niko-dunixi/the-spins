@@ -3,6 +3,7 @@ package data
 import (
 	"context"
 	"log"
+	"strconv"
 	"time"
 
 	"github.com/faiface/beep"
@@ -12,8 +13,21 @@ import (
 
 //go:generate go run generate.go
 var (
-	seekPoint = 1581000
+	seekPointBuildOverride = ""
+	seekPoint              = 1581000
 )
+
+func init() {
+	if seekPointBuildOverride == "" {
+		return
+	}
+	if value, err := strconv.Atoi(seekPointBuildOverride); err == nil {
+		log.Printf("Overriding seek value from '%d' to '%d'\n", seekPoint, value)
+		seekPoint = value
+	} else {
+		log.Fatalf("Bad seek override value: '%s'", seekPointBuildOverride)
+	}
+}
 
 func PlaySpinLoop(ctx context.Context) {
 	file, err := assets.Open("spin-loop.mp3")
