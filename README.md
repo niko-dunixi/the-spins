@@ -5,22 +5,22 @@ Now your computer can get them too!
 
 ## Installation and Running
 
-# Dependencies
-* GoLang
-* youtube-dl (optional)
-* ffmpeg (optional)
-You can install them al yourself, or run the `install-dependencies.sh` script if you're on Mac or Linux
+### Dependencies
+You can install them yourself, or run the `install-dependencies.sh` script if you're on Mac or Linux
+* [GoLang](https://golang.org/dl/)
+* [youtube-dl](https://ytdl-org.github.io/youtube-dl/download.html) (optional)
+* [ffmpeg](https://github.com/adaptlearning/adapt_authoring/wiki/Installing-FFmpeg) (optional)
 
-# The Project, Itself
-You _can_ just `go get github.com/paul-nelson-baker/the-spins`, but you won't really get the
-full effect. What you should do is clone the repository locally and run the following:
+### The Project, Itself
+Like any other golang project you _can_ `go get github.com/paul-nelson-baker/the-spins`,
+but you won't really get the full effect. What you should do is clone the repository
+locally and run the following:
 
 ```
 make generate
 make install
 ```
-
-Note: For `make generate` to work you will need [youtube-dl](https://ytdl-org.github.io/youtube-dl/download.html) and [ffmpeg](https://github.com/adaptlearning/adapt_authoring/wiki/Installing-FFmpeg) installed locally
+> Note: For `make generate` to work you will need `youtube-dl` and `ffmpeg` installed locally
 
 In your terminal run `the-spins`, to exit simply hit `CTRL+C`
 
