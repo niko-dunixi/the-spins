@@ -11,6 +11,9 @@ import (
 )
 
 //go:generate go run generate.go
+var (
+	seekPoint = 1581000
+)
 
 func PlaySpinLoop(ctx context.Context) {
 	file, err := assets.Open("spin-loop.mp3")
@@ -24,7 +27,6 @@ func PlaySpinLoop(ctx context.Context) {
 	}
 	defer streamer.Close()
 	speaker.Init(format.SampleRate, format.SampleRate.N(time.Second/10))
-
 	// log.Printf("%d\n", streamer.Len()) // 801792
 	for {
 		ended := make(chan bool)
@@ -32,7 +34,7 @@ func PlaySpinLoop(ctx context.Context) {
 			ended <- true
 		})))
 		<-ended
-		if err := streamer.Seek(0); err != nil {
+		if err := streamer.Seek(seekPoint); err != nil {
 			log.Fatalf("an error occurred while attempting to loop audio: %s", err)
 		}
 		select {
