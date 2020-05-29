@@ -7,10 +7,11 @@ import (
 	// "os/signal"
 	// "time"
 
+	"bytes"
 	"github.com/faiface/pixel"
 	"github.com/go-vgo/robotgo"
+	"golang.org/x/image/bmp"
 	"golang.org/x/image/colornames"
-
 	// "github.com/paul-nelson-baker/the-spins/data"
 	// "gonum.org/v1/gonum/mat"
 
@@ -20,20 +21,21 @@ import (
 func main() {
 	// Capture the desktop as a screenCaptureBitmap
 	width, height := robotgo.GetScreenSize()
-	screenCaptureBitmap := robotgo.CaptureScreen()
-	defer robotgo.FreeBitmap(screenCaptureBitmap)
+	screenCaptureBounds := pixel.R(0, 0, float64(width), float64(height))
+
+	screenPicture, err := captureScreenPicture()
+	if err != nil {
+		panic(err)
+	}
+	screenCaptureSprite := pixel.NewSprite(screenPicture, screenCaptureBounds)
+
 	// Create a window and display said screenCaptureBitmap
 	pixelgl.Run(func() {
 		cfg := pixelgl.WindowConfig{
 			Undecorated: true,
 			//AlwaysOnTop: true,
-			VSync:       true,
-			Bounds: pixel.Rect{
-				Max: pixel.Vec{
-					X: float64(width),
-					Y: float64(height),
-				},
-			},
+			VSync:   true,
+			Bounds:  screenCaptureBounds,
 			Monitor: pixelgl.PrimaryMonitor(),
 		}
 		win, err := pixelgl.NewWindow(cfg)
@@ -41,10 +43,25 @@ func main() {
 			panic(err)
 		}
 		win.Clear(colornames.Black)
+		screenCaptureSprite.Draw(win, pixel.IM.Moved(win.Bounds().Center()))
 		for !win.Closed() {
 			win.Update()
 		}
 	})
+
+
+}
+
+func captureScreenPicture() (pixel.Picture, error) {
+	screenCaptureBitmap := robotgo.CaptureScreen()
+	// This free should be safe, because we're copying the image as we convert it to our target type
+	defer robotgo.FreeBitmap(screenCaptureBitmap)
+	screenCaptureBytes := robotgo.ToBitmapBytes(screenCaptureBitmap)
+	screenCaptureImage, err := bmp.Decode(bytes.NewReader(screenCaptureBytes))
+	if err != nil {
+		return nil, err
+	}
+	return pixel.PictureDataFromImage(screenCaptureImage), nil
 }
 
 // func main() {
