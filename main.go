@@ -12,6 +12,11 @@ import (
 	"github.com/go-vgo/robotgo"
 	"golang.org/x/image/bmp"
 	"golang.org/x/image/colornames"
+	"image"
+	"image/png"
+	"io/ioutil"
+	"strings"
+
 	// "github.com/paul-nelson-baker/the-spins/data"
 	// "gonum.org/v1/gonum/mat"
 
@@ -19,17 +24,20 @@ import (
 )
 
 func main() {
-	// Capture the desktop as a screenCaptureBitmap
-	width, height := robotgo.GetScreenSize()
-	screenCaptureBounds := pixel.R(0, 0, float64(width), float64(height))
-
-	screenPicture, err := captureScreenPicture()
+	// Capture the screen in the form of image.Image
+	screenCaptureImage, err := captureScreenPicture()
 	if err != nil {
 		panic(err)
 	}
-	screenCaptureSprite := pixel.NewSprite(screenPicture, screenCaptureBounds)
-
-	// Create a window and display said screenCaptureBitmap
+	// Save it for debugging purposes
+	if err := saveImage(screenCaptureImage, "screen-capture-test"); err != nil {
+		panic(err)
+	}
+	// Convert the image.Image to a pixel.Sprite
+	screenCapturePicture := pixel.PictureDataFromImage(screenCaptureImage)
+	screenCaptureBounds := imageBounds(screenCaptureImage)
+	screenCaptureSprite := pixel.NewSprite(screenCapturePicture, screenCaptureBounds)
+	// Create a window and display the desktop which has been captured as a sprite
 	pixelgl.Run(func() {
 		cfg := pixelgl.WindowConfig{
 			Undecorated: true,
@@ -46,13 +54,14 @@ func main() {
 		screenCaptureSprite.Draw(win, pixel.IM.Moved(win.Bounds().Center()))
 		for !win.Closed() {
 			win.Update()
+			if win.Pressed(pixelgl.KeyEscape) {
+				win.SetClosed(true)
+			}
 		}
 	})
-
-
 }
 
-func captureScreenPicture() (pixel.Picture, error) {
+func captureScreenPicture() (image.Image, error) {
 	screenCaptureBitmap := robotgo.CaptureScreen()
 	// This free should be safe, because we're copying the image as we convert it to our target type
 	defer robotgo.FreeBitmap(screenCaptureBitmap)
@@ -61,7 +70,25 @@ func captureScreenPicture() (pixel.Picture, error) {
 	if err != nil {
 		return nil, err
 	}
-	return pixel.PictureDataFromImage(screenCaptureImage), nil
+	return screenCaptureImage, nil
+}
+
+func saveImage(img image.Image, name string) error {
+	byteBuffer := &bytes.Buffer{}
+	err := png.Encode(byteBuffer, img)
+	if err != nil {
+		return err
+	}
+	if !strings.HasSuffix(name, ".png") {
+		name += ".png"
+	}
+	return ioutil.WriteFile(name, byteBuffer.Bytes(), 0644)
+}
+
+func imageBounds(img image.Image) pixel.Rect {
+	min := img.Bounds().Min
+	max := img.Bounds().Max
+	return pixel.R(float64(min.X), float64(min.Y), float64(max.X), float64(max.Y))
 }
 
 // func main() {
