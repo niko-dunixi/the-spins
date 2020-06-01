@@ -11,9 +11,11 @@ import (
 	"github.com/faiface/pixel"
 	"github.com/go-vgo/robotgo"
 	"golang.org/x/image/bmp"
+	"gonum.org/v1/gonum/mat"
 	"image"
 	"image/png"
 	"io/ioutil"
+	"math"
 	"strings"
 	"time"
 
@@ -22,6 +24,8 @@ import (
 
 	"github.com/faiface/pixel/pixelgl"
 )
+
+const defaultSpeed float32 = 0.5
 
 var fragmentShader = `
 #version 330 core
@@ -55,16 +59,15 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
-	// Save it for debugging purposes
-	if err := saveImage(screenCaptureImage, "screen-capture-test"); err != nil {
-		panic(err)
-	}
 	// Convert the image.Image to a pixel.Sprite
 	screenCapturePicture := pixel.PictureDataFromImage(screenCaptureImage)
 	screenCaptureBounds := imageBounds(screenCaptureImage)
 	screenCaptureSprite := pixel.NewSprite(screenCapturePicture, screenCaptureBounds)
 	// Create a window and display the desktop which has been captured as a sprite
 	var uTime, uSpeed float32
+	midScreenMatrix := createMidScreenMatrix()
+	robotgo.MoveMouseSmooth(int(midScreenMatrix.At(0, 0)), int(midScreenMatrix.At(0, 1)))
+	point := mat.NewDense(1, 2, []float64{75, 75})
 	pixelgl.Run(func() {
 		cfg := pixelgl.WindowConfig{
 			Undecorated: true,
@@ -79,7 +82,7 @@ func main() {
 		}
 		win.Canvas().SetUniform("uTime", &uTime)
 		win.Canvas().SetUniform("uSpeed", &uSpeed)
-		uSpeed = 5.0
+		uSpeed = defaultSpeed
 		win.Canvas().SetFragmentShader(fragmentShader)
 
 		start := time.Now()
@@ -87,14 +90,16 @@ func main() {
 			win.Clear(pixel.RGB(0, 0, 0))
 			screenCaptureSprite.Draw(win, pixel.IM.Moved(win.Bounds().Center()))
 			uTime = float32(time.Since(start).Seconds())
-			if win.Pressed(pixelgl.KeyRight) {
-				uSpeed += 0.1
-			}
-			if win.Pressed(pixelgl.KeyLeft) {
-				uSpeed -= 0.1
-			}
+			mouseMatrix := determineMouseMatrix(point, midScreenMatrix, float64(uTime*uSpeed))
+			robotgo.MoveMouse(int(mouseMatrix.At(0, 0)), int(mouseMatrix.At(0, 1)))
 			if win.Pressed(pixelgl.KeyEscape) {
 				win.SetClosed(true)
+			} else if win.Pressed(pixelgl.KeyLeft) {
+				uSpeed -= 0.1
+			} else if win.Pressed(pixelgl.KeyRight) {
+				uSpeed += 0.1
+			} else if win.Pressed(pixelgl.KeyDown) {
+				uSpeed = defaultSpeed
 			}
 			win.Update()
 		}
@@ -176,30 +181,30 @@ func imageBounds(img image.Image) pixel.Rect {
 // 	robotgo.MoveMouse(originalX, originalY)
 // }
 
-// func determineMouseMatrix(point, offset mat.Matrix, theta float64) mat.Matrix {
-// 	result := mat.NewDense(1, 2, nil)
-// 	rotationMatrix := createRotationMatrix(theta)
-// 	result.Mul(point, rotationMatrix)
-// 	result.Add(result, offset)
-// 	return result
-// }
+func determineMouseMatrix(point, offset mat.Matrix, theta float64) mat.Matrix {
+	result := mat.NewDense(1, 2, nil)
+	rotationMatrix := createRotationMatrix(theta)
+	result.Mul(point, rotationMatrix)
+	result.Add(result, offset)
+	return result
+}
 
-// func createMidScreenMatrix() mat.Matrix {
-// 	screenSizeMatrix := createScreenSizeMatrix()
-// 	midScreenMatrix := mat.NewDense(1, 2, nil)
-// 	midScreenMatrix.Scale(0.5, screenSizeMatrix)
-// 	return midScreenMatrix
-// }
+func createMidScreenMatrix() mat.Matrix {
+	screenSizeMatrix := createScreenSizeMatrix()
+	midScreenMatrix := mat.NewDense(1, 2, nil)
+	midScreenMatrix.Scale(0.5, screenSizeMatrix)
+	return midScreenMatrix
+}
 
-// func createScreenSizeMatrix() mat.Matrix {
-// 	width, height := robotgo.GetScreenSize()
-// 	values := []float64{float64(width), float64(height)}
-// 	return mat.NewDense(1, 2, values)
-// }
+func createScreenSizeMatrix() mat.Matrix {
+	width, height := robotgo.GetScreenSize()
+	values := []float64{float64(width), float64(height)}
+	return mat.NewDense(1, 2, values)
+}
 
-// func createRotationMatrix(theta float64) mat.Matrix {
-// 	// Row major order of the rotation matrix
-// 	// https://en.wikipedia.org/wiki/Rotation_matrix
-// 	values := []float64{math.Cos(theta), math.Sin(theta), -math.Sin(theta), math.Cos(theta)}
-// 	return mat.NewDense(2, 2, values)
-// }
+func createRotationMatrix(theta float64) mat.Matrix {
+	// Row major order of the rotation matrix
+	// https://en.wikipedia.org/wiki/Rotation_matrix
+	values := []float64{math.Cos(theta), math.Sin(theta), -math.Sin(theta), math.Cos(theta)}
+	return mat.NewDense(2, 2, values)
+}
