@@ -11,17 +11,43 @@ import (
 	"github.com/faiface/pixel"
 	"github.com/go-vgo/robotgo"
 	"golang.org/x/image/bmp"
-	"golang.org/x/image/colornames"
 	"image"
 	"image/png"
 	"io/ioutil"
 	"strings"
+	"time"
 
 	// "github.com/paul-nelson-baker/the-spins/data"
 	// "gonum.org/v1/gonum/mat"
 
 	"github.com/faiface/pixel/pixelgl"
 )
+
+var fragmentShader = `
+#version 330 core
+
+out vec4 fragColor;
+
+uniform sampler2D uTexture;
+uniform vec4 uTexBounds;
+
+// custom uniforms
+uniform float uSpeed;
+uniform float uTime;
+
+void main() {
+    vec2 t = gl_FragCoord.xy / uTexBounds.zw;
+	vec3 influence = texture(uTexture, t).rgb;
+
+    if (influence.r + influence.g + influence.b > 0.3) {
+		t.y += cos(t.x * 40.0 + (uTime * uSpeed))*0.005;
+		t.x += cos(t.y * 40.0 + (uTime * uSpeed))*0.01;
+	}
+
+    vec3 col = texture(uTexture, t).rgb;
+	fragColor = vec4(col * vec3(0.6, 0.6, 1.2),1.0);
+}
+`
 
 func main() {
 	// Capture the screen in the form of image.Image
@@ -38,6 +64,7 @@ func main() {
 	screenCaptureBounds := imageBounds(screenCaptureImage)
 	screenCaptureSprite := pixel.NewSprite(screenCapturePicture, screenCaptureBounds)
 	// Create a window and display the desktop which has been captured as a sprite
+	var uTime, uSpeed float32
 	pixelgl.Run(func() {
 		cfg := pixelgl.WindowConfig{
 			Undecorated: true,
@@ -50,13 +77,26 @@ func main() {
 		if err != nil {
 			panic(err)
 		}
-		win.Clear(colornames.Black)
-		screenCaptureSprite.Draw(win, pixel.IM.Moved(win.Bounds().Center()))
+		win.Canvas().SetUniform("uTime", &uTime)
+		win.Canvas().SetUniform("uSpeed", &uSpeed)
+		uSpeed = 5.0
+		win.Canvas().SetFragmentShader(fragmentShader)
+
+		start := time.Now()
 		for !win.Closed() {
-			win.Update()
+			win.Clear(pixel.RGB(0, 0, 0))
+			screenCaptureSprite.Draw(win, pixel.IM.Moved(win.Bounds().Center()))
+			uTime = float32(time.Since(start).Seconds())
+			if win.Pressed(pixelgl.KeyRight) {
+				uSpeed += 0.1
+			}
+			if win.Pressed(pixelgl.KeyLeft) {
+				uSpeed -= 0.1
+			}
 			if win.Pressed(pixelgl.KeyEscape) {
 				win.SetClosed(true)
 			}
+			win.Update()
 		}
 	})
 }
