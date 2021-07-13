@@ -9,13 +9,14 @@ import (
 
 	"github.com/go-vgo/robotgo"
 	"github.com/paul-nelson-baker/the-spins/data"
+	hook "github.com/robotn/gohook"
 	"gonum.org/v1/gonum/mat"
 )
 
 func main() {
 
-	c1, cancel := context.WithCancel(context.Background())
-	exitCh := make(chan struct{})
+	ctx, cancel := context.WithCancel(context.Background())
+	exitChannel := make(chan struct{})
 
 	originalX, originalY := robotgo.GetMousePos()
 
@@ -36,23 +37,45 @@ func main() {
 			select {
 			case <-ctx.Done():
 				time.Sleep(500 * time.Millisecond)
-				exitCh <- struct{}{}
+				exitChannel <- struct{}{}
 				return
 			default:
 			}
 		}
-	}(c1)
+	}(ctx)
 
 	signalCh := make(chan os.Signal, 1)
 	signal.Notify(signalCh, os.Interrupt)
+
 	go func() {
-		select {
-		case <-signalCh:
-			cancel()
-			return
+		// Always trigger the context cancelation because it means
+		// an event has killed our loop and we're cascading down the
+		// line
+		defer cancel()
+
+		// Start reading user input events
+		userEventChannel := hook.Start()
+		defer hook.End()
+
+		// Debug timeout for times I break the exit logic as I'm
+		// experimenting with code.
+		// debugTimeout := time.After(time.Second * 60)
+
+		// Wait until the user triggers an exit
+		for {
+			select {
+			case <-signalCh:
+				return
+			// case <-debugTimeout:
+			// return
+			case currentEvent := <-userEventChannel:
+				if isEscape := currentEvent.Keycode == robotgo.Keycode[`esc`]; isEscape {
+					return
+				}
+			}
 		}
 	}()
-	<-exitCh
+	<-exitChannel
 
 	robotgo.MoveMouse(originalX, originalY)
 }
