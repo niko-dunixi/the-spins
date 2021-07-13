@@ -1,6 +1,6 @@
 module github.com/paul-nelson-baker/the-spins
 
-go 1.14
+go 1.16
 
 require (
 	github.com/StackExchange/wmi v1.2.0 // indirect

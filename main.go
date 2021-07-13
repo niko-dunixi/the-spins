@@ -8,7 +8,6 @@ import (
 	"time"
 
 	"github.com/go-vgo/robotgo"
-	"github.com/paul-nelson-baker/the-spins/data"
 	hook "github.com/robotn/gohook"
 	"gonum.org/v1/gonum/mat"
 )
@@ -22,7 +21,7 @@ func main() {
 
 	go func(ctx context.Context) {
 		midScreenMatrix := createMidScreenMatrix()
-		go data.PlaySpinLoop(ctx)
+		go PlaySpinLoop(ctx)
 		robotgo.MoveMouseSmooth(int(midScreenMatrix.At(0, 0)), int(midScreenMatrix.At(0, 1)))
 		time.Sleep(600 * time.Millisecond)
 		point := mat.NewDense(1, 2, []float64{75, 75})

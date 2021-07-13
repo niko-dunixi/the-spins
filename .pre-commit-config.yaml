@@ -1,0 +1,32 @@
+---
+repos:
+# Markdown
+- repo: https://github.com/trussworks/pre-commit-hooks
+  rev: v1.1.0
+  hooks:
+  - id: markdown-toc
+# YAML
+- repo: https://github.com/adrienverge/yamllint.git
+  rev: v1.26.1
+  hooks:
+  - id: yamllint
+    args: ['-d {extends: relaxed, rules: {line-length: disable}}', '-s']
+# Terraform
+- repo: git://github.com/antonbabenko/pre-commit-terraform
+  rev: v1.50.0
+  hooks:
+  - id: terraform_validate
+  - id: terraform_fmt
+  - id: terraform_docs
+# GoLang
+- repo: git://github.com/dnephin/pre-commit-golang
+  rev: v0.4.0
+  hooks:
+  - id: go-fmt
+  - id: go-mod-tidy
+# Python
+- repo: https://github.com/ambv/black
+  rev: 21.6b0
+  hooks:
+  - id: black
+    language_version: python3.8
