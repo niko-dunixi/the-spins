@@ -6,7 +6,7 @@ Now your computer can get them too!
 ## Installation
 
 ```bash
-$ go get github.com/paul-nelson-baker/the-spins
+$ go install github.com/paul-nelson-baker/the-spins@latest
 ```
 
 ## Usage
